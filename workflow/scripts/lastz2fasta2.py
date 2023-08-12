@@ -142,14 +142,14 @@ for filename in glob.glob(os.path.join(path, "*.maf")):
                 with open(outdir + "/gene_" + gene +'.temp.'+str(gene_count[gene])+".fasta", "w") as w:
                     w.write(">" + index + "\n")
                     w.write(seq + "\n")
-                    gene_count[gene] += 1
                 with open(outdir + "/gene_" + gene +".fa", "a") as w:
                     w.write(">" + index + "\n")
                     w.write(seq + "\n")
-                w.close()
                 # add to mapping file
+                nm = "gene_{0}.temp.{1}".format(gene,gene_count[gene])
                 with open(outdir + "/mapping.txt", "a") as w2:
-                    w2.write(index + " " + species + "\n")
+                    w2.write(nm+ " " + species + "\n")
+                gene_count[gene] += 1
                 w2.close()
 # turn number of genes dict into list
 x = list(num_genes.keys())
