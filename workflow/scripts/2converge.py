@@ -290,7 +290,7 @@ if __name__ == "__main__":
     time_stamps.append(start_time)
     runtime_left = math.inf
     gt_counts = []
-    os.system('snakemake --unlock')
+    os.system('snakemake --unlock --config WEIGHTED=0')
     with open(out_dir+"/time_stamps.csv",'a') as t_out:
         t_out.write("Start time: "+str(start_time_l)+"\n")
     while(True):
@@ -298,7 +298,7 @@ if __name__ == "__main__":
         weighted = True
         if iteration == 0 and input_gt is None:
             weighted = False
-    
+        print("weighted",weighted)
         run,num_gt = converge_run(iteration,CORES,out_dir,NUM_BOOTSTRAP,ref_exist,trees,roadies_dir,weighted,runtime_left,sub_dir,need_to_sub)
         need_to_sub=False
         print("There are {0} gene trees after iteration {1}".format(num_gt,iteration))

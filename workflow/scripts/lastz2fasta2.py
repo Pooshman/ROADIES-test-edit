@@ -34,6 +34,9 @@ k = args.k
 d = args.d
 num_genes = {}
 num_homologues = {}
+gene_count = {}
+for i in range(1,k+1):
+    gene_count[str(i)] = 0
 for i in range(1, k + 1):
     os.system("touch {0}/gene_{1}.fa".format(outdir, i))
 # open all lastz alignment outputs
@@ -53,12 +56,12 @@ for filename in glob.glob(os.path.join(path, "*.maf")):
             elif 'gene' in lines[i]:
                 l = i-1
                 # get gene id
-                print(lines[l])
+                #print(lines[l])
                 gene_line = lines[l + 1].split()
-                print(gene_line)
+                #print(gene_line)
                 gene = gene_line[1]
                 gene_s = gene.split("_")
-                gene_id = gene_s[1]
+                gene_id = str(gene_s[1])
                 # get score of that alignment
                 score_line = lines[l - 1].split()
                 score_expr = score_line[1].split("=")
@@ -68,13 +71,16 @@ for filename in glob.glob(os.path.join(path, "*.maf")):
                 position = int(seq_line[2])
                 # add to dict of genes
                 if gene_id not in genes:
+                    print(gene_id,"not in ")
                     genes[gene_id] = [(score, l, position)]
                 else:
                     genes[gene_id].append((score, l, position))
+        #print(genes)
         # get number of genes for that species
         num_genes[species] = len(genes)
         # get number of homologues for that gene (#species)
         for gene in genes:
+            
             if gene in num_homologues:
                 num_homologues[gene] += 1
             else:
@@ -131,7 +137,13 @@ for filename in glob.glob(os.path.join(path, "*.maf")):
                         break
                 if not good_seq:
                     continue
-                with open(outdir + "/gene_" + gene + ".fa", "a") as w:
+                print(gene_count)
+                print("gene",gene,gene_count[gene])
+                with open(outdir + "/gene_" + gene +'.temp.'+str(gene_count[gene])+".fasta", "w") as w:
+                    w.write(">" + index + "\n")
+                    w.write(seq + "\n")
+                    gene_count[gene] += 1
+                with open(outdir + "/gene_" + gene +".fa", "a") as w:
                     w.write(">" + index + "\n")
                     w.write(seq + "\n")
                 w.close()
@@ -170,6 +182,8 @@ count = 0
 gene_dup = []
 # iterate through gene fastas
 for filename in glob.glob(os.path.join(outdir, "*.fa")):
+    if "temp" in filename:
+        continue
     # get gene#
     fs = filename.split("/")
     fs2 = fs[len(fs) - 1]
@@ -195,7 +209,7 @@ for filename in glob.glob(os.path.join(outdir, "*.fa")):
             found.append(name)
     # if number of species is > threhold count it
     if len(found) >= m:
-        print(len(found), found)
+       # print(len(found), found)
         count += 1
     else:
         with open(filename, "w") as w:

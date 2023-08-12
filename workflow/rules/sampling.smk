@@ -74,17 +74,17 @@ else:
 				subset_map[g].append(sub)
 			else:
 				subset_map[g] = [sub]
-	for m in subset_map:
-		print(m,len(subset_map[m]))
-print("subset file is ",subset_file)
-print("subset dir is ", subset_dir)
+	#for m in subset_map:
+		#print(m,len(subset_map[m]))
+#print("subset file is ",subset_file)
+#print("subset dir is ", subset_dir)
 def does_map_exist():
 	return map_exist
 def is_mapped(wildcards):
-	print("w",wildcards)
+	#print("w",wildcards)
 	#file = config["GENOMES"]
 	if wildcards in subset_map:	
-		print(wildcards,len(subset_map[wildcards]))
+	#	print(wildcards,len(subset_map[wildcards]))
 		return len(subset_map[wildcards])
 	else:
 		return 0

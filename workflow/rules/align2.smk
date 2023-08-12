@@ -34,10 +34,7 @@ rule lastz2fasta:
 	conda:
 		"../envs/plots.yaml"
 	shell:
-		'''
-		echo "python workflow/scripts/lastz2fasta2.py -k {params.k} --path {params.p} --outdir {params.out} -m {params.m} --plotdir {params.plotdir} --statdir {params.statdir} -d {params.d}"
-		python workflow/scripts/lastz2fasta2.py -k {params.k} --path {params.p} --outdir {params.out} -m {params.m} --plotdir {params.plotdir} --statdir {params.statdir} -d {params.d}
-		'''
+		"python workflow/scripts/lastz2fasta.py -k {params.k} --path {params.p} --outdir {params.out} -m {params.m} --plotdir {params.plotdir} --statdir {params.statdir} -d {params.d}" 
 		
 		
 rule lastz:
@@ -85,18 +82,19 @@ rule lastz:
 				done
 				for f in $(ls {params.subset_dir}/${{prefix}}_*_out.maf); do
 					cat ${{f}} >> {output}
-					rm ${{f}}
 				done
 			else
 				echo "aligning {input.genome} with size ${{size}} normally"
 				lastz_32 {input.genome}[multiple] {input.genes} --coverage={params.coverage} --continuity={params.continuity} --filter=identity:{params.identity} --format=maf --output={output} --ambiguous=iupac --step={params.steps} --notransition --queryhspbest={params.max_dup}
 			fi																																				
 		else
+			echo "{params.subset} subsets"
+			echo {params.subset_dir}
 			if [[ {params.subset} -eq 0 ]]; then
 				echo "mapping is 0 aligning {input.genome} normally"
 				lastz_32 {input.genome}[multiple] {input.genes} --coverage={params.coverage} --continuity={params.continuity} --filter=identity:{params.identity} --format=maf --output={output} --ambiguous=iupac --step={params.steps} --notransition --queryhspbest={params.max_dup}
 			else
-				echo "using {params.subset} subsets for {input.genome}"
+				echo "using subset for {input.genome}"
 				prefix=$(basename {input.genome} .fa);
 				dir="$(dirname {input.genome})" 
 				for f in $(ls {params.subset_dir}/${{prefix}}_*.fa); do
@@ -105,7 +103,6 @@ rule lastz:
 				done
 				for f in $(ls {params.subset_dir}/${{prefix}}_*_out.maf); do
 					cat ${{f}} >> {output}
-					rm ${{f}}
 				done      
 			fi
 		fi
@@ -121,18 +118,19 @@ rule pasta:
 		m=config["MIN_ALIGN"],
 		n=config["OUT_DIR"],
 		max_len=int(1.5*config["LENGTH"]),
-		prefix=config["OUT_DIR"]+"/genes/gene_{id}.temp"
+		prefix = "gene_{id}",
+		suffix = "fa.aln",
+        gene_dir = config["OUT_DIR"]+"/genes"
 	benchmark:
 		config["OUT_DIR"]+"/benchmarks/{id}.pasta.txt"
 	threads: 8
 	conda: 
-		"../envs/mash.yaml"
+		"../envs/msa.yaml"
 	shell:
 		'''
-		if [[ `grep -n '>' {input} | wc -l` -gt {params.m} ]] || [[ `awk 'BEGIN{{l=0;n=0;st=0}}{{if (substr($0,1,1) == ">") {{st=1}} else {{st=2}}; if(st==1) {{n+=1}} else if(st==2) {{l+=length($0)}}}} END{{if (n>0) {{print int((l+n-1)/n)}} else {{print 0}} }}' {input}` -gt {params.max_len} ]]
+		''if [[ `grep -n '>' {input} | wc -l` -gt {params.m} ]] || [[ `awk 'BEGIN{{l=0;n=0;st=0}}{{if (substr($0,1,1) == ">") {{st=1}} else {{st=2}}; if(st==1) {{n+=1}} else if(st==2) {{l+=length($0)}}}} END{{if (n>0) {{print int((l+n-1)/n)}} else {{print 0}} }}' {input}` -gt {params.max_len} ]]
 		then
-			ls {params.prefix}.*
-			mashtree --numcpus 8 {params.prefix}.* > {output}
+			mashtree --numcpus 8 {params.gene_dir}/gene_{id}.temp.* [*.fasta] > {output}
+
 		fi
-		touch {output}
-		'''
+		touch {output}''
