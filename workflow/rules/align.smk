@@ -71,12 +71,12 @@ rule lastz:
 			#compute genome size
 			size=$(./faSize {input.genome} | awk '{{if (NR==1) {{print $1}}}}')
 			#if over size limit
-			if [[ $size -gt 2000000000 ]]; then 
+			if [[ $size -gt 4000000000 ]]; then 
 				echo "{input.genome} has size ${{size}} which is over the size limit subsetting"
     			echo -n "" > {output}
     			prefix=$(basename {input.genome} .fa);
 				echo "splitting fasta to {params.subset_dir}/${{prefix}}_"
-				faSplit about {input.genome} 1000000000 {params.subset_dir}/${{prefix}}_ 
+				faSplit about {input.genome} 2000000000 {params.subset_dir}/${{prefix}}_ 
 				for f in $(ls {params.subset_dir}/${{prefix}}_*.fa); do
 					echo "aligning ${{f}}"
 					echo "${{f}} {input.genome}"
