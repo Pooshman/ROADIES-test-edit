@@ -31,5 +31,5 @@ FILTERFRAGMENTS: 0.50
 MASKSITES: 0.02
 #Threshold for high support (only used in --converge option)
 SUPPORT_THRESHOLD: 0.95
-#Number of instances to run in parallel
+#Number of instances (jobs, not nodes) to run in parallel
 NUM_INSTANCES: 4
