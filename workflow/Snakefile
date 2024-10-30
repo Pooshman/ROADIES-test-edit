@@ -23,6 +23,9 @@ elif (mode == "balanced"):
 	include: "rules/align.smk"
 	include: "rules/sampling.smk"
 	include: "rules/fasttree.smk"
+elif (mode == "just_seq"):
+	include: "rules/align.smk"
+	include: "rules/sampling.smk"
 else:
 	include: "rules/align.smk"
 	include: "rules/sampling.smk"
